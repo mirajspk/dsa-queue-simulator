@@ -1,4 +1,4 @@
-#include "./VehicleClass.h"
+#include "header/VehicleClass.hpp"
 
 Vehicle::Vehicle(Lane lane, Route route, int id)
     : lane(lane), route(route), id(id){}

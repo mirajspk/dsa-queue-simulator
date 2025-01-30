@@ -12,6 +12,14 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(simulator src/simulator.cpp src/traffic_generator.cpp)
+include_directories(${CMAKE_SOURCE_DIR}/src/header)
+
+set(SOURCES
+    src/simulator.cpp
+    src/traffic_generator.cpp
+    src/VehicleClass.cpp
+)
+
+add_executable(simulator ${SOURCES})
 target_compile_features(simulator PRIVATE cxx_std_17)
 target_link_libraries(simulator PRIVATE SFML::Graphics SFML::Window)

@@ -1,8 +1,16 @@
 #include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
 
 int main()
 {
-    sf::Window window(sf::VideoMode({800, 600}), "simulator");
+    sf::RenderWindow window(sf::VideoMode({1500, 1500}), "simulator");
+
+    sf::Texture texture;
+    if(!texture.loadFromFile("assets/map.png"))
+    {
+        return -1;
+    }
+    sf::Sprite sprite(texture);
 
     while (window.isOpen())
     {
@@ -11,5 +19,8 @@ int main()
             if (event->is<sf::Event::Closed>())
                 window.close();
         }
+        window.clear();
+        window.draw(sprite);
+        window.display();
     }
 }

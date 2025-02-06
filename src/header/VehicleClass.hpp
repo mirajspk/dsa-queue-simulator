@@ -3,21 +3,28 @@
 
 #include "Route.hpp" 
 #include "Lane.hpp"
-#include <string>
+#include<SFML/Graphics.hpp>
 
 class Vehicle {
 
 private:
-    Lane lane;                           
+    Lane origin;
+    Lane destination;                           
     Route route;                
-    int id;                             
-                    
-    Vehicle(Lane lane, Route route, int id); 
+    int id;
+    sf::RectangleShape rectangle;   
 
-    Lane getLane() const;                
-    Route getRoute() const;      
-    int getID() const;                   
+public: 
+    Vehicle( int id, Lane origin, Lane destination, Route route, sf::Vector2f position);
+    int getID();  
+    Lane getOriginLane();
+    Lane getDestinationLane();               
+    Route getRoute(); 
+    void move(sf::Vector2f position);
+    void draw(sf::RenderWindow& window);
 
+    
+                     
 };
 
 #endif 

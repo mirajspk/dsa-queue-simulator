@@ -1,5 +1,6 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include "header/VehicleClass.hpp"
 
 int main()
 {
@@ -21,6 +22,8 @@ int main()
         }
         window.clear();
         window.draw(sprite);
+        Vehicle vehicle(1, Lane::B3, Lane::D1, Route::MOVE_B_TO_D, sf::Vector2f(750, 750));
+        vehicle.draw(window);
         window.display();
     }
 }

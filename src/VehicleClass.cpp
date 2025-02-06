@@ -1,17 +1,35 @@
 #include "header/VehicleClass.hpp"
 
-Vehicle::Vehicle(Lane lane, Route route, int id)
-    : lane(lane), route(route), id(id){}
+Vehicle::Vehicle(int id, Lane origin, Lane destination, Route route, sf::Vector2f position)
+    : origin(origin), destination(destination), route(route), id(id)
+    {
+    rectangle.setSize(sf::Vector2f(20, 20));
+    rectangle.setFillColor(sf::Color::Red);
+    rectangle.setPosition(position);
+    }
 
-Lane Vehicle::getLane() const {
-    return lane;
+
+Lane Vehicle::getOriginLane() {
+    return origin;
 }
 
-Route Vehicle::getRoute() const {
+Lane Vehicle::getDestinationLane(){
+    return destination;
+}
+
+Route Vehicle::getRoute(){
     return route;
 }
 
-int Vehicle::getID() const {
+int Vehicle::getID(){
     return id;
+}
+
+void Vehicle::move(sf::Vector2f position){
+    rectangle.move(position);
+}
+
+void Vehicle::draw(sf::RenderWindow& window){
+    window.draw(rectangle);
 }
 

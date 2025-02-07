@@ -12,16 +12,22 @@ private:
     Lane destination;                           
     Route route;                
     int id;
-    sf::RectangleShape rectangle;   
+    sf::RectangleShape rectangle; 
+    sf::Vector2f destinationPosition;
+    float speed = 100.0f;
+
 
 public: 
-    Vehicle( int id, Lane origin, Lane destination, Route route, sf::Vector2f position);
+    Vehicle( int id, Lane origin, Lane destination, Route route);
     int getID();  
     Lane getOriginLane();
     Lane getDestinationLane();               
     Route getRoute(); 
     void move(sf::Vector2f position);
     void draw(sf::RenderWindow& window);
+    void setRoute(Route route);
+    void update(float deltaTime);
+
 
     
                      

@@ -4,7 +4,7 @@
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode({1500, 1500}), "simulator");
+    sf::RenderWindow window(sf::VideoMode({1080, 1080}), "simulator");
 
     sf::Texture texture;
     if(!texture.loadFromFile("assets/map.png"))
@@ -12,6 +12,8 @@ int main()
         return -1;
     }
     sf::Sprite sprite(texture);
+    sf::Clock clock;
+    Vehicle vehicle(1, Lane::D2, Lane::C1, Route::MOVE_D_TO_C);
 
     while (window.isOpen())
     {   sf::Event event;
@@ -20,9 +22,10 @@ int main()
             if (event.type == sf::Event::Closed)
                 window.close();
         }
+        float deltaTime = clock.restart().asSeconds();
+        vehicle.update(deltaTime);
         window.clear();
         window.draw(sprite);
-        Vehicle vehicle(1, Lane::B3, Lane::D1, Route::MOVE_B_TO_D, sf::Vector2f(750, 750));
         vehicle.draw(window);
         window.display();
     }

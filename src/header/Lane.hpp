@@ -1,5 +1,5 @@
-#ifndef LANE_H
-#define LANE_H
+#ifndef LANE_HPP
+#define LANE_HPP
 
 enum class Lane {
     A1,

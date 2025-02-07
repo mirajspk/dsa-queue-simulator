@@ -27,10 +27,7 @@ public:
     void draw(sf::RenderWindow& window);
     void setRoute(Route route);
     void update(float deltaTime);
-
-
-    
-                     
+    sf::FloatRect getBounds();                 
 };
 
 #endif 

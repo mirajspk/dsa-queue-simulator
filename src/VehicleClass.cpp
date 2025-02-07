@@ -56,3 +56,7 @@ void Vehicle::update(float deltaTime) {
             }
         }
     }
+
+sf::FloatRect Vehicle::getBounds() {
+    return rectangle.getGlobalBounds();
+}

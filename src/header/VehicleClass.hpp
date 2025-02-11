@@ -13,7 +13,8 @@ private:
     Route route;                
     int id;
     sf::RectangleShape rectangle; 
-    sf::Vector2f destinationPosition;
+    std::vector<sf::Vector2f> waypoints;
+    size_t currentWaypointIndex ;
     float speed = 100.0f;
 
 

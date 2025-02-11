@@ -34,28 +34,33 @@ void Vehicle::draw(sf::RenderWindow& window){
     window.draw(rectangle);
 }
 
-void Vehicle::setRoute(Route route){
-    switch(route){
+void Vehicle::setRoute(Route route) {
+    switch (route) {
         case Route::MOVE_D_TO_C:
             rectangle.setPosition(0, 485.5);
-            destinationPosition = sf::Vector2f(1080, 485.5);
+            waypoints = {sf::Vector2f(1080, 485.5)}; 
+            break;
+        case Route::MOVE_D_TO_A:
+            rectangle.setPosition(0, 445.5);
+            waypoints = {sf::Vector2f(495.5, 445.5), sf::Vector2f(495.5, -100)}; 
             break;
     }
 }
 
 void Vehicle::update(float deltaTime) {
-        if (rectangle.getPosition() != destinationPosition) {
-            sf::Vector2f direction = destinationPosition - rectangle.getPosition();
-            float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    if (currentWaypointIndex < waypoints.size()) {
+        sf::Vector2f direction = waypoints[currentWaypointIndex] - rectangle.getPosition();
+        float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
-            if (distance > speed * deltaTime) {
-                direction /= distance; 
-                rectangle.move(direction * speed * deltaTime);
-            } else {
-                rectangle.setPosition(destinationPosition); 
-            }
+        if (distance > speed * deltaTime) {
+            direction /= distance;
+            rectangle.move(direction * speed * deltaTime);
+        } else {
+            rectangle.setPosition(waypoints[currentWaypointIndex]);
+            currentWaypointIndex++; 
         }
     }
+}
 
 sf::FloatRect Vehicle::getBounds() {
     return rectangle.getGlobalBounds();

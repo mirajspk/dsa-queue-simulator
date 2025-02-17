@@ -22,8 +22,21 @@ int main() {
     queues[Lane::D2] = VehicleQueue();
 
     std::vector<Vehicle> vehicles;
-    vehicles.emplace_back(1, Lane::D1, Lane::C1, Route::MOVE_D_TO_A);
-    vehicles.emplace_back(2, Lane::D2, Lane::C2, Route::MOVE_D_TO_C);
+    vehicles.emplace_back(1, Lane::D2, Lane::C1, Route::MOVE_D_TO_C);
+    vehicles.emplace_back(2, Lane::D2, Lane::B1, Route::MOVE_D_TO_B);
+    vehicles.emplace_back(3, Lane::D3, Lane::C1, Route::MOVE_D_TO_A);
+
+    vehicles.emplace_back(4, Lane::A2, Lane::B1, Route::MOVE_A_TO_B);
+    vehicles.emplace_back(5, Lane::A2, Lane::D1, Route::MOVE_A_TO_D);
+    vehicles.emplace_back(6, Lane::A3, Lane::C1, Route::MOVE_A_TO_C);
+
+    vehicles.emplace_back(7, Lane::C2, Lane::B1, Route::MOVE_C_TO_B);
+    vehicles.emplace_back(9, Lane::C2, Lane::A1, Route::MOVE_C_TO_A);
+    vehicles.emplace_back(8, Lane::C3, Lane::D1, Route::MOVE_C_TO_D);
+
+    vehicles.emplace_back(10, Lane::B2, Lane::A1, Route::MOVE_B_TO_A);
+    vehicles.emplace_back(12, Lane::B2, Lane::C1, Route::MOVE_B_TO_C);
+    vehicles.emplace_back(11, Lane::B3, Lane::D1, Route::MOVE_B_TO_D);
 
     std::vector<LaneTrigger> laneTriggers;
     laneTriggers.emplace_back(sf::Vector2f(0.0f, 440.0f), sf::Vector2f(450.0f, 30.0f), Lane::D1);

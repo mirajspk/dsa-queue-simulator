@@ -31,16 +31,31 @@ int main() {
     vehicles.emplace_back(6, Lane::A3, Lane::C1, Route::MOVE_A_TO_C);
 
     vehicles.emplace_back(7, Lane::C2, Lane::B1, Route::MOVE_C_TO_B);
-    vehicles.emplace_back(9, Lane::C2, Lane::A1, Route::MOVE_C_TO_A);
-    vehicles.emplace_back(8, Lane::C3, Lane::D1, Route::MOVE_C_TO_D);
+    vehicles.emplace_back(8, Lane::C2, Lane::A1, Route::MOVE_C_TO_A);
+    vehicles.emplace_back(9, Lane::C3, Lane::D1, Route::MOVE_C_TO_D);
 
     vehicles.emplace_back(10, Lane::B2, Lane::A1, Route::MOVE_B_TO_A);
-    vehicles.emplace_back(12, Lane::B2, Lane::C1, Route::MOVE_B_TO_C);
-    vehicles.emplace_back(11, Lane::B3, Lane::D1, Route::MOVE_B_TO_D);
+    vehicles.emplace_back(11, Lane::B2, Lane::C1, Route::MOVE_B_TO_C);
+    vehicles.emplace_back(12, Lane::B3, Lane::D1, Route::MOVE_B_TO_D);
 
     std::vector<LaneTrigger> laneTriggers;
-    laneTriggers.emplace_back(sf::Vector2f(0.0f, 440.0f), sf::Vector2f(450.0f, 30.0f), Lane::D1);
-    laneTriggers.emplace_back(sf::Vector2f(0.0f, 480.0f), sf::Vector2f(450.0f, 30.0f), Lane::D2);
+    laneTriggers.emplace_back(sf::Vector2f(5.0f, 440.0f), sf::Vector2f(430.0f, 30.0f), Lane::D1);
+    laneTriggers.emplace_back(sf::Vector2f(5.0f, 480.0f), sf::Vector2f(430.0f, 30.0f), Lane::D2);
+    laneTriggers.emplace_back(sf::Vector2f(5.0f, 520.0f), sf::Vector2f(430.0f, 65.0f), Lane::D3);
+
+    laneTriggers.emplace_back(sf::Vector2f(640.0f, 440.0f), sf::Vector2f(435.0f, 65.0f), Lane::C1);
+    laneTriggers.emplace_back(sf::Vector2f(640.0f, 520.0f), sf::Vector2f(435.0f, 30.0f), Lane::C2);
+    laneTriggers.emplace_back(sf::Vector2f(640.0f, 560.0f), sf::Vector2f(435.0f, 30.0f), Lane::C3);
+
+    laneTriggers.emplace_back(sf::Vector2f(463.0f, 5.0f), sf::Vector2f(71.0f, 410.0f), Lane::A1);
+    laneTriggers.emplace_back(sf::Vector2f(544.0f, 5.0f), sf::Vector2f(30.0f, 410.0f), Lane::A2);
+    laneTriggers.emplace_back(sf::Vector2f(582.0f, 5.0f), sf::Vector2f(30.0f, 410.0f), Lane::A3);
+
+    laneTriggers.emplace_back(sf::Vector2f(546.0f, 618.0f), sf::Vector2f(70.0f, 455.0f), Lane::B1);
+    laneTriggers.emplace_back(sf::Vector2f(465.0f, 618.0f), sf::Vector2f(30.0f, 455.0f), Lane::B2);
+    laneTriggers.emplace_back(sf::Vector2f(506.0f, 618.0f), sf::Vector2f(30.0f, 455.0f), Lane::B3);
+
+
 
     std::map<int, std::map<Lane, bool>> flags;
 

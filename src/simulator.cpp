@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include "header/TrafficControl.hpp"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({1080, 1080}), "simulator");
@@ -18,8 +19,18 @@ int main() {
     sf::Clock clock;
 
     std::map<Lane, VehicleQueue> queues;
+    queues[Lane::A1] = VehicleQueue();
+    queues[Lane::A2] = VehicleQueue();
+    queues[Lane::A3] = VehicleQueue();
+    queues[Lane::B1] = VehicleQueue();
+    queues[Lane::B2] = VehicleQueue();
+    queues[Lane::B3] = VehicleQueue();
+    queues[Lane::C1] = VehicleQueue();
+    queues[Lane::C2] = VehicleQueue();
+    queues[Lane::C3] = VehicleQueue();
     queues[Lane::D1] = VehicleQueue();
     queues[Lane::D2] = VehicleQueue();
+    queues[Lane::D3] = VehicleQueue();
 
     std::vector<Vehicle> vehicles;
     vehicles.emplace_back(1, Lane::D2, Lane::C1, Route::MOVE_D_TO_C);
@@ -55,7 +66,13 @@ int main() {
     laneTriggers.emplace_back(sf::Vector2f(465.0f, 618.0f), sf::Vector2f(30.0f, 455.0f), Lane::B2);
     laneTriggers.emplace_back(sf::Vector2f(506.0f, 618.0f), sf::Vector2f(30.0f, 455.0f), Lane::B3);
 
+    std::vector <TrafficControl> trafficControls;
+    trafficControls.emplace_back(Light::RED, sf::Vector2f(650.0f, 625.0f), Road::A, sf::Vector2f(75,4), sf::Vector2f(542,419));
+    trafficControls.emplace_back(Light::RED, sf::Vector2f(420.0f, 400.0f), Road::B,sf::Vector2f(75,4), sf::Vector2f(462,606));
+    trafficControls.emplace_back(Light::RED, sf::Vector2f(420.0f, 625.0f), Road::C, sf::Vector2f(4.0f,80.0f), sf::Vector2f(630.0f,511.0f));
+    trafficControls.emplace_back(Light::RED, sf::Vector2f(650.0f, 400.0f), Road::D, sf::Vector2f(4.0f,72.0f), sf::Vector2f(444.0f,435.0f));
 
+    
 
     std::map<int, std::map<Lane, bool>> flags;
 
@@ -88,6 +105,10 @@ int main() {
 
         window.clear();
         window.draw(sprite);
+        
+        for (auto& trafficControl : trafficControls) {
+            trafficControl.draw(window);
+        }
 
         for (auto& laneTrigger : laneTriggers) {
             laneTrigger.draw(window);

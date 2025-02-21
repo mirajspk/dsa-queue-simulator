@@ -1,11 +1,16 @@
 #ifndef ROAD_HPP
 #define ROAD_HPP
 
-enum class Road {
-    A,
-    B,
-    C,
-    D
+#include "VehicleQueue.hpp"
+
+class Road {
+    private:
+        VehicleQueue lane2;
+        VehicleQueue lane3;
+    
+    public:
+        Road(VehicleQueue lane2, VehicleQueue lane3);
+        float getVehicleAvg(VehicleQueue lane2, VehicleQueue lane3);
 };
 
 #endif 

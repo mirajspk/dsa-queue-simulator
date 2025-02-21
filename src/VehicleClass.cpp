@@ -9,7 +9,6 @@ Vehicle::Vehicle(int id, Lane origin, Lane destination, Route route)
 
     }
 
-
 Lane Vehicle::getOriginLane() {
     return origin;
 }

@@ -1,6 +1,6 @@
 #include "TrafficControl.hpp"
 
-TrafficControl::TrafficControl(Light initialLight, sf::Vector2f position, Road road, sf::Vector2f blockerSize, sf::Vector2f blockerPosition)
+TrafficControl::TrafficControl(Light initialLight, sf::Vector2f position, RoadType road, sf::Vector2f blockerSize, sf::Vector2f blockerPosition)
     : light(initialLight), position(position), road(road) {
     lightShape.setRadius(20.0f);
     lightShape.setOrigin(20.0f, 20.0f);

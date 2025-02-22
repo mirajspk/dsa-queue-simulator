@@ -19,7 +19,9 @@ public:
     TrafficControl(Light initialLight, sf::Vector2f position, RoadType road, sf::Vector2f blockerSize, sf::Vector2f blockerPosition);
     void setLight(Light newLight);
     Light getLight();
+    bool isRed();
     void draw(sf::RenderWindow& window);
+    sf::RectangleShape getBlocker();
     
 };
 

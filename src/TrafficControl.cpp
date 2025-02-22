@@ -28,3 +28,11 @@ void TrafficControl::draw(sf::RenderWindow& window) {
     window.draw(lightShape);
     window.draw(blocker);
 }
+
+sf::RectangleShape TrafficControl::getBlocker() {
+    return blocker;
+}
+
+bool TrafficControl::isRed() {
+    return light == Light::RED;
+}

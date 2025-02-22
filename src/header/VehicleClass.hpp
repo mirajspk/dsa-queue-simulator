@@ -1,12 +1,11 @@
-#ifndef VEHICLE_H
-#define VEHICLE_H
+#ifndef VEHICLE_CLASS_HPP
+#define VEHICLE_CLASS_HPP
 
 #include "Route.hpp" 
 #include "Lane.hpp"
-#include<SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 class Vehicle {
-
 private:
     Lane origin;
     Lane destination;                           
@@ -14,12 +13,12 @@ private:
     int id;
     sf::RectangleShape rectangle; 
     std::vector<sf::Vector2f> waypoints;
-    size_t currentWaypointIndex ;
+    size_t currentWaypointIndex;
     float speed = 100.0f;
-
+    bool isStopped = false; 
 
 public: 
-    Vehicle( int id, Lane origin, Lane destination, Route route);
+    Vehicle(int id, Lane origin, Lane destination, Route route);
     int getID();  
     Lane getOriginLane();
     Lane getDestinationLane();               
@@ -29,6 +28,8 @@ public:
     void setRoute(Route route);
     void update(float deltaTime);
     sf::FloatRect getBounds();                 
+    void stop(); 
+    void resume(); 
 };
 
-#endif 
+#endif

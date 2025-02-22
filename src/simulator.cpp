@@ -23,7 +23,6 @@ int main() {
     queues[Lane::A2] = VehicleQueue();
     queues[Lane::A3] = VehicleQueue();
     queues[Lane::B1] = VehicleQueue();
-    queues[Lane::B2] = VehicleQueue();
     queues[Lane::B3] = VehicleQueue();
     queues[Lane::C1] = VehicleQueue();
     queues[Lane::C2] = VehicleQueue();
@@ -67,12 +66,10 @@ int main() {
     laneTriggers.emplace_back(sf::Vector2f(506.0f, 618.0f), sf::Vector2f(30.0f, 455.0f), Lane::B3);
 
     std::vector <TrafficControl> trafficControls;
-    trafficControls.emplace_back(Light::RED, sf::Vector2f(650.0f, 625.0f), RoadType::A, sf::Vector2f(75,4), sf::Vector2f(542,419));
-    trafficControls.emplace_back(Light::RED, sf::Vector2f(420.0f, 400.0f), RoadType::B,sf::Vector2f(75,4), sf::Vector2f(462,606));
+    trafficControls.emplace_back(Light::RED, sf::Vector2f(650.0f, 625.0f), RoadType::A, sf::Vector2f(75.0f,4.0f), sf::Vector2f(542.0f,419.0f));
+    trafficControls.emplace_back(Light::RED, sf::Vector2f(420.0f, 400.0f), RoadType::B,sf::Vector2f(75.0f,4.0f), sf::Vector2f(462.0f,606.0f));
     trafficControls.emplace_back(Light::RED, sf::Vector2f(420.0f, 625.0f), RoadType::C, sf::Vector2f(4.0f,80.0f), sf::Vector2f(630.0f,511.0f));
-    trafficControls.emplace_back(Light::RED, sf::Vector2f(650.0f, 400.0f), RoadType::D, sf::Vector2f(4.0f,72.0f), sf::Vector2f(444.0f,435.0f));
-
-    
+    trafficControls.emplace_back(Light::GREEN, sf::Vector2f(650.0f, 400.0f), RoadType::D, sf::Vector2f(4.0f,72.0f), sf::Vector2f(444.0f,435.0f));
 
     std::map<int, std::map<Lane, bool>> flags;
 
@@ -83,10 +80,10 @@ int main() {
                 window.close();
         }
         float deltaTime = clock.restart().asSeconds();
-
+    
         for (size_t i = 0; i < vehicles.size(); ++i) {
             vehicles[i].update(deltaTime);
-
+    
             for (size_t j = 0; j < laneTriggers.size(); ++j) {
                 Lane lane = laneTriggers[j].getLane();
                 if (laneTriggers[j].isVehicleOnLane(vehicles[i]) && !flags[vehicles[i].getID()][lane]) {
@@ -101,25 +98,35 @@ int main() {
                     flags[vehicles[i].getID()][lane] = false;
                 }
             }
+    
+            bool stopped = false;
+            for (auto& trafficControl : trafficControls) {
+                if (vehicles[i].getBounds().intersects(trafficControl.getBlocker().getGlobalBounds())&& trafficControl.isRed()) {
+                    vehicles[i].stop();
+                    stopped = true;
+                }
+            }
+    
+            if (!stopped) {
+                vehicles[i].resume();
+            }
         }
-
+    
         window.clear();
         window.draw(sprite);
         
         for (auto& trafficControl : trafficControls) {
             trafficControl.draw(window);
         }
-
+    
         for (auto& laneTrigger : laneTriggers) {
             laneTrigger.draw(window);
         }
-
+    
         for (auto& vehicle : vehicles) {
             vehicle.draw(window);
         }
-
+    
         window.display();
     }
-
-    return 0;
 }

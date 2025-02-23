@@ -1,4 +1,4 @@
-#include "TrafficControl.hpp"
+#include "header/TrafficControl.hpp"
 
 TrafficControl::TrafficControl(Light initialLight, sf::Vector2f position, RoadType road, sf::Vector2f blockerSize, sf::Vector2f blockerPosition)
     : light(initialLight), position(position), road(road) {
@@ -22,6 +22,10 @@ void TrafficControl::setLight(Light newLight) {
 
 Light TrafficControl::getLight() {
     return light;
+}
+
+RoadType TrafficControl::getRoad() {
+    return road;
 }
 
 void TrafficControl::draw(sf::RenderWindow& window) {

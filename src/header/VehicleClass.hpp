@@ -18,15 +18,15 @@ private:
     bool isStopped = false; 
 
 public: 
-    Vehicle(int id, Lane origin, Lane destination, Route route);
-    int getID();  
+    Vehicle(int id, Lane origin, Lane destination, Route route, float spawnOffset);
+    int getID() const; 
     Lane getOriginLane();
     Lane getDestinationLane();               
     Route getRoute(); 
     void move(sf::Vector2f position);
     void draw(sf::RenderWindow& window);
-    void setRoute(Route route);
-    void update(float deltaTime);
+    void setRoute(Route route, float spawnOffset);
+    void update(float deltaTime, const std::vector<Vehicle>& allVehicles);
     sf::FloatRect getBounds();                 
     void stop(); 
     void resume(); 

@@ -8,7 +8,7 @@ TrafficControl::TrafficControl(Light initialLight, sf::Vector2f position, RoadTy
     setLight(initialLight); 
     blocker.setPosition(blockerPosition);
     blocker.setSize(blockerSize);
-    blocker.setFillColor(sf::Color::Blue);
+    blocker.setFillColor(sf::Color::Transparent);
 }
 
 void TrafficControl::setLight(Light newLight) {

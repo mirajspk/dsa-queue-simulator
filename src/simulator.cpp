@@ -5,11 +5,13 @@
 #include "header/VehicleQueue.hpp"
 #include "header/TrafficControl.hpp"
 #include "header/LightQueue.hpp"
+#include "header/VehicleGenerator.hpp"
 #include <iostream>
 #include <vector>
 #include <map>
 
 int main() {
+    srand(time(nullptr)); 
     sf::RenderWindow window(sf::VideoMode({1080, 1080}), "simulator");
 
     sf::Texture texture;
@@ -34,18 +36,7 @@ int main() {
     queues[Lane::D3] = VehicleQueue();
 
     std::vector<Vehicle> vehicles;
-    vehicles.emplace_back(1, Lane::D2, Lane::C1, Route::MOVE_D_TO_C, 0.0f);
-    vehicles.emplace_back(2, Lane::D2, Lane::B1, Route::MOVE_D_TO_B, 1.0f);
-    vehicles.emplace_back(3, Lane::D3, Lane::C1, Route::MOVE_D_TO_A, 2.0f);
-    vehicles.emplace_back(4, Lane::A2, Lane::B1, Route::MOVE_A_TO_B, 0.0f);
-    vehicles.emplace_back(5, Lane::A2, Lane::D1, Route::MOVE_A_TO_D, 1.0f);
-    vehicles.emplace_back(6, Lane::A3, Lane::C1, Route::MOVE_A_TO_C, 2.0f);
-    vehicles.emplace_back(7, Lane::C2, Lane::B1, Route::MOVE_C_TO_B, 0.0f);
-    vehicles.emplace_back(8, Lane::C2, Lane::A1, Route::MOVE_C_TO_A, 1.0f);
-    vehicles.emplace_back(9, Lane::C3, Lane::D1, Route::MOVE_C_TO_D, 2.0f);
-    vehicles.emplace_back(10, Lane::B2, Lane::A1, Route::MOVE_B_TO_A, 0.0f);
-    vehicles.emplace_back(11, Lane::B2, Lane::C1, Route::MOVE_B_TO_C, 1.0f);
-    vehicles.emplace_back(12, Lane::B3, Lane::D1, Route::MOVE_B_TO_D, 2.0f);
+    VehicleGenerator generator; 
 
     std::vector<LaneTrigger> laneTriggers;
     laneTriggers.emplace_back(sf::Vector2f(5.0f, 440.0f), sf::Vector2f(430.0f, 30.0f), Lane::D1);
@@ -62,14 +53,15 @@ int main() {
     laneTriggers.emplace_back(sf::Vector2f(506.0f, 618.0f), sf::Vector2f(30.0f, 455.0f), Lane::B3);
 
     std::vector<TrafficControl> trafficControls;
-    trafficControls.emplace_back(Light::RED, sf::Vector2f(650.0f, 625.0f), RoadType::A, sf::Vector2f(75.0f, 4.0f), sf::Vector2f(542.0f, 419.0f));
-    trafficControls.emplace_back(Light::RED, sf::Vector2f(420.0f, 400.0f), RoadType::B, sf::Vector2f(75.0f, 4.0f), sf::Vector2f(462.0f, 606.0f));
-    trafficControls.emplace_back(Light::RED, sf::Vector2f(420.0f, 625.0f), RoadType::C, sf::Vector2f(4.0f, 80.0f), sf::Vector2f(630.0f, 511.0f));
-    trafficControls.emplace_back(Light::RED, sf::Vector2f(650.0f, 400.0f), RoadType::D, sf::Vector2f(4.0f, 72.0f), sf::Vector2f(444.0f, 435.0f));
+    trafficControls.emplace_back(Light::RED, sf::Vector2f(650.0f, 400.0f), RoadType::A, sf::Vector2f(75.0f, 4.0f), sf::Vector2f(542.0f, 419.0f));
+    trafficControls.emplace_back(Light::RED, sf::Vector2f(420.0f, 625.0f), RoadType::B, sf::Vector2f(75.0f, 4.0f), sf::Vector2f(462.0f, 606.0f));
+    trafficControls.emplace_back(Light::RED, sf::Vector2f(650.0f, 625.0f), RoadType::C, sf::Vector2f(4.0f, 80.0f), sf::Vector2f(630.0f, 511.0f));
+    trafficControls.emplace_back(Light::RED, sf::Vector2f(420.0f, 400.0f), RoadType::D, sf::Vector2f(4.0f, 72.0f), sf::Vector2f(444.0f, 435.0f));
 
     std::map<int, std::map<Lane, bool>> flags;
     LightQueue lightQueue;
     float lightUpdateInterval = 5.0f;
+    bool a2Priority = false; 
 
     while (window.isOpen()) {
         sf::Event event;
@@ -79,8 +71,10 @@ int main() {
         }
         float deltaTime = clock.restart().asSeconds();
 
+        generator.update(vehicles, deltaTime);
+
         for (size_t i = 0; i < vehicles.size(); ++i) {
-            vehicles[i].update(deltaTime, vehicles); 
+            vehicles[i].update(deltaTime, vehicles);
 
             for (size_t j = 0; j < laneTriggers.size(); ++j) {
                 Lane lane = laneTriggers[j].getLane();
@@ -116,13 +110,42 @@ int main() {
             float avgC = (queues[Lane::C2].size() + queues[Lane::C3].size()) / 2.0f;
             float avgD = (queues[Lane::D2].size() + queues[Lane::D3].size()) / 2.0f;
 
-            lightQueue.sortQueue(avgA, avgB, avgC, avgD, queues[Lane::A2].size());
+            if (queues[Lane::A2].size() > 10) {
+                a2Priority = true;
+            } else if (queues[Lane::A2].size() < 5) {
+                a2Priority = false;
+            }
 
             for (auto& tc : trafficControls) {
                 tc.setLight(Light::RED);
             }
 
-            RoadType greenRoad = lightQueue.dequeue();
+            RoadType greenRoad;
+            float selectedAvg = 0.0f;
+            if (a2Priority) {
+                greenRoad = RoadType::A;
+                selectedAvg = avgA;
+            } else {
+                lightQueue.sortQueue(avgA, avgB, avgC, avgD, queues[Lane::A2].size());
+                greenRoad = lightQueue.dequeue();
+                switch (greenRoad) {
+                    case RoadType::A:
+                        selectedAvg = avgA;
+                        break;
+                    case RoadType::B:
+                        selectedAvg = avgB;
+                        break;
+                    case RoadType::C:
+                        selectedAvg = avgC;
+                        break;
+                    case RoadType::D:
+                        selectedAvg = avgD;
+                        break;
+                }
+            }
+
+            lightUpdateInterval = std::max(1.0f, selectedAvg * 3.0f);
+
             for (auto& tc : trafficControls) {
                 if (tc.getRoad() == RoadType::A && greenRoad == RoadType::A) {
                     tc.setLight(Light::GREEN);
@@ -139,7 +162,9 @@ int main() {
                 }
             }
 
-            std::cout << "Green light set for Road: " << static_cast<int>(greenRoad) << std::endl;
+            std::cout << "Green light set for Road: " << static_cast<int>(greenRoad) 
+                      << " with avg vehicles: " << selectedAvg 
+                      << ", new interval: " << lightUpdateInterval << " seconds" << std::endl;
             lightUpdateClock.restart();
         }
 

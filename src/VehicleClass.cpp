@@ -8,24 +8,24 @@ Vehicle::Vehicle(int id, Lane origin, Lane destination, Route route, float spawn
     setRoute(route, spawnOffset);
 }
 
-Lane Vehicle::getOriginLane() {
+Lane Vehicle::getOriginLane() const {
     return origin;
 }
 
-Lane Vehicle::getDestinationLane() {
+Lane Vehicle::getDestinationLane() const {
     return destination;
 }
 
-Route Vehicle::getRoute() {
+Route Vehicle::getRoute() const {
     return route;
 }
 
-int Vehicle::getID() const { 
+int Vehicle::getID() const {
     return id;
 }
 
 void Vehicle::move(sf::Vector2f position) {
-    rectangle.move(position);
+    rectangle.setPosition(position);
 }
 
 void Vehicle::draw(sf::RenderWindow& window) {
@@ -34,92 +34,107 @@ void Vehicle::draw(sf::RenderWindow& window) {
 
 void Vehicle::setRoute(Route route, float spawnOffset) {
     float gap = 20.0f;
+    waypoints.clear();
+
+    switch (origin) {
+        case Lane::D2:
+        case Lane::D3:
+            waypoints.push_back(sf::Vector2f(-gap * spawnOffset, route == Route::MOVE_D_TO_A ? 445.5 : 485.5));
+            break;
+        case Lane::A2:
+        case Lane::A3:
+            waypoints.push_back(sf::Vector2f(route == Route::MOVE_A_TO_C ? 590 : 552.5, -gap * spawnOffset));
+            break;
+        case Lane::C2:
+        case Lane::C3:
+            waypoints.push_back(sf::Vector2f(1080 + gap * spawnOffset, route == Route::MOVE_C_TO_B ? 562.5 : 523.5));
+            break;
+        case Lane::B2:
+        case Lane::B3:
+            waypoints.push_back(sf::Vector2f(route == Route::MOVE_B_TO_D ? 474.5 : 512.5, 1080 + gap * spawnOffset));
+            break;
+    }
+
     switch (route) {
         case Route::MOVE_D_TO_C:
-            rectangle.setPosition(spawnOffset * gap, 485.5);
-            waypoints = {sf::Vector2f(1080, 485.5)};
+            waypoints.push_back(sf::Vector2f(2000, 485.5));
             break;
 
         case Route::MOVE_D_TO_B:
-            rectangle.setPosition(spawnOffset * gap, 485.5);
-            waypoints = {sf::Vector2f(572.5, 485.5), sf::Vector2f(572.5, 1080)};
+            waypoints.push_back(sf::Vector2f(572.5, 485.5));
+            waypoints.push_back(sf::Vector2f(572.5, 2000));
             break;
 
         case Route::MOVE_D_TO_A:
-            rectangle.setPosition(spawnOffset * gap, 445.5);
-            waypoints = {sf::Vector2f(495.5, 445.5), sf::Vector2f(495.5, -100)};
+            waypoints.push_back(sf::Vector2f(495.5, 445.5));
+            waypoints.push_back(sf::Vector2f(495.5, -2000));
             break;
 
         case Route::MOVE_A_TO_B:
-            rectangle.setPosition(552.5, spawnOffset * gap);
-            waypoints = {sf::Vector2f(552.5, 1080)};
+            waypoints.push_back(sf::Vector2f(552.5, 2000));
             break;
 
         case Route::MOVE_A_TO_D:
-            rectangle.setPosition(552.5, spawnOffset * gap);
-            waypoints = {sf::Vector2f(552.5, 542.5), sf::Vector2f(-100, 542.5)};
+            waypoints.push_back(sf::Vector2f(552.5, 542.5));
+            waypoints.push_back(sf::Vector2f(-2000, 542.5));
             break;
 
         case Route::MOVE_A_TO_C:
-            rectangle.setPosition(590, spawnOffset * gap);
-            waypoints = {sf::Vector2f(590, 466.5), sf::Vector2f(1100, 466.5)};
+            waypoints.push_back(sf::Vector2f(590, 466.5));
+            waypoints.push_back(sf::Vector2f(2000, 466.5));
             break;
 
         case Route::MOVE_C_TO_B:
-            rectangle.setPosition(1100 - spawnOffset * gap, 562.5);
-            waypoints = {sf::Vector2f(580, 562.5), sf::Vector2f(580, 1100)};
+            waypoints.push_back(sf::Vector2f(580, 562.5));
+            waypoints.push_back(sf::Vector2f(580, 2000));
             break;
 
         case Route::MOVE_C_TO_D:
-            rectangle.setPosition(1100 - spawnOffset * gap, 523.5);
-            waypoints = {sf::Vector2f(-100, 523.5)};
+            waypoints.push_back(sf::Vector2f(-2000, 523.5));
             break;
 
         case Route::MOVE_C_TO_A:
-            rectangle.setPosition(1100 - spawnOffset * gap, 523.5);
-            waypoints = {sf::Vector2f(503, 523.5), sf::Vector2f(503, -100)};
+            waypoints.push_back(sf::Vector2f(503, 523.5));
+            waypoints.push_back(sf::Vector2f(503, -2000));
             break;
 
         case Route::MOVE_B_TO_A:
-            rectangle.setPosition(512.5, 1100 - spawnOffset * gap);
-            waypoints = {sf::Vector2f(512.5, -100)};
+            waypoints.push_back(sf::Vector2f(512.5, -2000));
             break;
 
         case Route::MOVE_B_TO_D:
-            rectangle.setPosition(474.5, 1100 - spawnOffset * gap);
-            waypoints = {sf::Vector2f(474.5, 545.5), sf::Vector2f(-100, 545.5)};
+            waypoints.push_back(sf::Vector2f(474.5, 545.5));
+            waypoints.push_back(sf::Vector2f(-2000, 545.5));
             break;
 
         case Route::MOVE_B_TO_C:
-            rectangle.setPosition(512.5, 1100 - spawnOffset * gap);
-            waypoints = {sf::Vector2f(512.5, 465.5), sf::Vector2f(1100, 465.5)};
+            waypoints.push_back(sf::Vector2f(512.5, 465.5));
+            waypoints.push_back(sf::Vector2f(2000, 465.5));
             break;
     }
 }
 
 void Vehicle::update(float deltaTime, const std::vector<Vehicle>& allVehicles) {
     if (currentWaypointIndex < waypoints.size() && !isStopped) {
-        
         float minGap = 20.0f;
         bool tooClose = false;
         sf::Vector2f currentPos = rectangle.getPosition();
         sf::Vector2f nextWaypoint = waypoints[currentWaypointIndex];
 
         for (const auto& other : allVehicles) {
-            if (other.getID() != id) { 
+            if (other.getID() != id) {
                 sf::Vector2f otherPos = other.rectangle.getPosition();
                 float distance = std::sqrt(std::pow(otherPos.x - currentPos.x, 2) + std::pow(otherPos.y - currentPos.y, 2));
 
-                
                 bool isAhead = false;
                 if (nextWaypoint.x > currentPos.x && otherPos.x > currentPos.x && std::abs(otherPos.y - currentPos.y) < 15.0f) {
-                    isAhead = true; 
+                    isAhead = true;
                 } else if (nextWaypoint.x < currentPos.x && otherPos.x < currentPos.x && std::abs(otherPos.y - currentPos.y) < 15.0f) {
-                    isAhead = true; 
+                    isAhead = true;
                 } else if (nextWaypoint.y > currentPos.y && otherPos.y > currentPos.y && std::abs(otherPos.x - currentPos.x) < 15.0f) {
-                    isAhead = true; 
+                    isAhead = true;
                 } else if (nextWaypoint.y < currentPos.y && otherPos.y < currentPos.y && std::abs(otherPos.x - currentPos.x) < 15.0f) {
-                    isAhead = true; 
+                    isAhead = true;
                 }
 
                 if (isAhead && distance < minGap) {

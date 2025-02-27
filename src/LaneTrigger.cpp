@@ -4,7 +4,7 @@ LaneTrigger::LaneTrigger(sf::Vector2f position, sf::Vector2f size, Lane lane)
     : position(position), size(size), lane(lane) {
     laneArea.setSize(size);
     laneArea.setPosition(position);
-    laneArea.setFillColor(sf::Color(0, 255, 0, 100)); 
+    laneArea.setFillColor(sf::Color::Transparent); 
 }
 
 bool LaneTrigger::isVehicleOnLane(Vehicle& vehicle) {

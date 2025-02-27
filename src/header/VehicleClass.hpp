@@ -19,10 +19,10 @@ private:
 
 public: 
     Vehicle(int id, Lane origin, Lane destination, Route route, float spawnOffset);
-    int getID() const; 
-    Lane getOriginLane();
-    Lane getDestinationLane();               
-    Route getRoute(); 
+    int getID() const;
+    Lane getOriginLane() const;
+    Lane getDestinationLane() const; 
+    Route getRoute() const; 
     void move(sf::Vector2f position);
     void draw(sf::RenderWindow& window);
     void setRoute(Route route, float spawnOffset);

@@ -1,26 +1,55 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Network.hpp>
 #include "header/VehicleClass.hpp"
 #include "header/LaneTrigger.hpp"
 #include "header/VehicleQueue.hpp"
 #include "header/TrafficControl.hpp"
 #include "header/LightQueue.hpp"
-#include "header/VehicleGenerator.hpp"
 #include <iostream>
 #include <vector>
 #include <map>
+#include <memory>
+
+RoadType laneToRoad(Lane lane) {
+    switch (lane) {
+        case Lane::A2:
+        case Lane::A3:
+            return RoadType::A;
+        case Lane::B2:
+        case Lane::B3:
+            return RoadType::B;
+        case Lane::C2:
+        case Lane::C3:
+            return RoadType::C;
+        case Lane::D2:
+        case Lane::D3:
+            return RoadType::D;
+        default:
+            return RoadType::A;
+    }
+}
 
 int main() {
-    srand(time(nullptr)); 
+    srand(time(nullptr));
     sf::RenderWindow window(sf::VideoMode({1080, 1080}), "simulator");
 
     sf::Texture texture;
     if (!texture.loadFromFile("assets/map.png")) {
+        std::cout << "Failed to load map.png" << std::endl;
         return -1;
     }
     sf::Sprite sprite(texture);
     sf::Clock clock;
     sf::Clock lightUpdateClock;
+
+    sf::TcpSocket socket;
+    if (socket.connect("127.0.0.1", 55001) != sf::Socket::Done) {
+        std::cout << "Failed to connect to server" << std::endl;
+        return -1;
+    }
+    std::cout << "Connected to server" << std::endl;
+    socket.setBlocking(false);
 
     std::map<Lane, VehicleQueue> queues;
     queues[Lane::A1] = VehicleQueue();
@@ -35,8 +64,12 @@ int main() {
     queues[Lane::D2] = VehicleQueue();
     queues[Lane::D3] = VehicleQueue();
 
-    std::vector<Vehicle> vehicles;
-    VehicleGenerator generator; 
+    std::vector<std::unique_ptr<Vehicle>> vehicles;
+    std::map<int, std::map<Lane, bool>> flags;
+    std::map<int, bool> hasDequeued; // Track dequeued vehicles by ID
+    LightQueue lightQueue;
+    float lightUpdateInterval = 5.0f;
+    bool a2Priority = false;
 
     std::vector<LaneTrigger> laneTriggers;
     laneTriggers.emplace_back(sf::Vector2f(5.0f, 440.0f), sf::Vector2f(430.0f, 30.0f), Lane::D1);
@@ -58,11 +91,6 @@ int main() {
     trafficControls.emplace_back(Light::RED, sf::Vector2f(650.0f, 625.0f), RoadType::C, sf::Vector2f(4.0f, 80.0f), sf::Vector2f(630.0f, 511.0f));
     trafficControls.emplace_back(Light::RED, sf::Vector2f(420.0f, 400.0f), RoadType::D, sf::Vector2f(4.0f, 72.0f), sf::Vector2f(444.0f, 435.0f));
 
-    std::map<int, std::map<Lane, bool>> flags;
-    LightQueue lightQueue;
-    float lightUpdateInterval = 5.0f;
-    bool a2Priority = false; 
-
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -71,36 +99,71 @@ int main() {
         }
         float deltaTime = clock.restart().asSeconds();
 
-        generator.update(vehicles, deltaTime);
+        sf::Packet packet;
+        if (socket.receive(packet) == sf::Socket::Done) {
+            int id, origin, destination, route;
+            float x, y;
+            if (packet >> id >> origin >> destination >> route >> x >> y) {
+                bool exists = false;
+                for (const auto& veh : vehicles) {
+                    if (veh->getID() == id) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    auto v = std::make_unique<Vehicle>(id, static_cast<Lane>(origin), static_cast<Lane>(destination), static_cast<Route>(route), 0);
+                    v->move(sf::Vector2f(x, y));
+                    vehicles.push_back(std::move(v));
+                    std::cout << "Received vehicle: " << id << " for lane " << origin << std::endl;
+                    if (!hasDequeued[id]) {
+                        queues[static_cast<Lane>(origin)].enqueue(*vehicles.back());
+                    }
+                }
+            }
+        }
+
+        std::vector<Vehicle> vehicleRefs;
+        vehicleRefs.reserve(vehicles.size());
+        for (const auto& veh : vehicles) {
+            vehicleRefs.push_back(*veh);
+        }
 
         for (size_t i = 0; i < vehicles.size(); ++i) {
-            vehicles[i].update(deltaTime, vehicles);
+            vehicles[i]->update(deltaTime, vehicleRefs);
 
             for (size_t j = 0; j < laneTriggers.size(); ++j) {
                 Lane lane = laneTriggers[j].getLane();
-                if (laneTriggers[j].isVehicleOnLane(vehicles[i]) && !flags[vehicles[i].getID()][lane]) {
-                    std::cout << "Enqueue " << vehicles[i].getID() << " to " << static_cast<int>(lane) << std::endl;
-                    queues[lane].enqueue(vehicles[i]);
+                if (laneTriggers[j].isVehicleOnLane(*vehicles[i]) && !flags[vehicles[i]->getID()][lane]) {
+                    std::cout << "Enqueue " << vehicles[i]->getID() << " to " << static_cast<int>(lane) << std::endl;
+                    if (!hasDequeued[vehicles[i]->getID()]) {
+                        queues[lane].enqueue(*vehicles[i]);
+                    }
                     std::cout << "Queue size for lane " << static_cast<int>(lane) << ": " << queues[lane].size() << std::endl;
-                    flags[vehicles[i].getID()][lane] = true;
-                } else if (!laneTriggers[j].isVehicleOnLane(vehicles[i]) && flags[vehicles[i].getID()][lane]) {
+                    flags[vehicles[i]->getID()][lane] = true;
+                } else if (!laneTriggers[j].isVehicleOnLane(*vehicles[i]) && flags[vehicles[i]->getID()][lane]) {
                     queues[lane].dequeue();
-                    std::cout << "Dequeue " << vehicles[i].getID() << " from " << static_cast<int>(lane) << std::endl;
+                    std::cout << "Dequeue " << vehicles[i]->getID() << " from " << static_cast<int>(lane) << std::endl;
                     std::cout << "Queue size for lane " << static_cast<int>(lane) << ": " << queues[lane].size() << std::endl;
-                    flags[vehicles[i].getID()][lane] = false;
+                    flags[vehicles[i]->getID()][lane] = false;
+                    hasDequeued[vehicles[i]->getID()] = true;
+                    vehicles.erase(vehicles.begin() + i); // Remove from vehicles
+                    --i; // Adjust index after erase
+                    break; // Exit trigger loop after removal
                 }
             }
 
-            bool stopped = false;
-            for (auto& trafficControl : trafficControls) {
-                if (vehicles[i].getBounds().intersects(trafficControl.getBlocker().getGlobalBounds()) && trafficControl.isRed()) {
-                    vehicles[i].stop();
-                    stopped = true;
+            if (i < vehicles.size()) { // Check bounds after potential erase
+                bool stopped = false;
+                for (auto& trafficControl : trafficControls) {
+                    if (vehicles[i]->getBounds().intersects(trafficControl.getBlocker().getGlobalBounds()) && trafficControl.isRed()) {
+                        vehicles[i]->stop();
+                        stopped = true;
+                    }
                 }
-            }
-
-            if (!stopped) {
-                vehicles[i].resume();
+                if (!stopped) {
+                    vehicles[i]->resume();
+                }
             }
         }
 
@@ -180,7 +243,7 @@ int main() {
         }
 
         for (auto& vehicle : vehicles) {
-            vehicle.draw(window);
+            vehicle->draw(window);
         }
 
         window.display();

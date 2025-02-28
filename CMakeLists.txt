@@ -14,7 +14,20 @@ FetchContent_MakeAvailable(SFML)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/header)
 
-file(GLOB SOURCES src/*.cpp)
-add_executable(simulator ${SOURCES})
+add_executable(traffic_generator 
+    src/traffic_generator.cpp 
+    src/VehicleClass.cpp
+)
+target_compile_features(traffic_generator PRIVATE cxx_std_17)
+target_link_libraries(traffic_generator PRIVATE sfml-graphics sfml-window sfml-network)
+
+add_executable(simulator 
+    src/simulator.cpp 
+    src/VehicleClass.cpp 
+    src/LightQueue.cpp 
+    src/LaneTrigger.cpp 
+    src/VehicleQueue.cpp 
+    src/TrafficControl.cpp
+)
 target_compile_features(simulator PRIVATE cxx_std_17)
-target_link_libraries(simulator PRIVATE sfml-graphics sfml-window)
+target_link_libraries(simulator PRIVATE sfml-graphics sfml-window sfml-network)

@@ -25,3 +25,6 @@ Below is a GIF demonstrating the simulation in action, showing vehicles navigati
    cd dsa-queue-simulator
    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
    cmake --build build
+ 
+ ## Report
+ Check out a detailed report [here](docs/Report.pdf)

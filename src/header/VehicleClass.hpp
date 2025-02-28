@@ -16,6 +16,7 @@ private:
     size_t currentWaypointIndex;
     float speed = 100.0f;
     bool isStopped = false; 
+    bool isRouteCompleted = false; 
 
 public: 
     Vehicle(int id, Lane origin, Lane destination, Route route, float spawnOffset);
@@ -30,6 +31,7 @@ public:
     sf::FloatRect getBounds();                 
     void stop(); 
     void resume(); 
+    bool hasCompletedRoute() const; 
 };
 
 #endif

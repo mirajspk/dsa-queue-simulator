@@ -1,11 +1,15 @@
-#include "header/VehicleClass.hpp"
+#include "VehicleClass.hpp"
 #include <cmath>
 
 Vehicle::Vehicle(int id, Lane origin, Lane destination, Route route, float spawnOffset)
-    : origin(origin), destination(destination), route(route), id(id) {
+    : origin(origin), destination(destination), route(route), id(id), isRouteCompleted(false) {
     rectangle.setSize(sf::Vector2f(15, 15));
     rectangle.setFillColor(sf::Color::Red);
     setRoute(route, spawnOffset);
+}
+
+int Vehicle::getID() const {
+    return id;
 }
 
 Lane Vehicle::getOriginLane() const {
@@ -18,10 +22,6 @@ Lane Vehicle::getDestinationLane() const {
 
 Route Vehicle::getRoute() const {
     return route;
-}
-
-int Vehicle::getID() const {
-    return id;
 }
 
 void Vehicle::move(sf::Vector2f position) {
@@ -154,6 +154,9 @@ void Vehicle::update(float deltaTime, const std::vector<Vehicle>& allVehicles) {
             } else {
                 rectangle.setPosition(nextWaypoint);
                 currentWaypointIndex++;
+                if (currentWaypointIndex >= waypoints.size()) {
+                    isRouteCompleted = true; 
+                }
             }
         }
     }
@@ -171,4 +174,8 @@ void Vehicle::stop() {
 void Vehicle::resume() {
     isStopped = false;
     speed = 100.0f;
+}
+
+bool Vehicle::hasCompletedRoute() const {
+    return isRouteCompleted;
 }

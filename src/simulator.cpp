@@ -66,7 +66,7 @@ int main() {
 
     std::vector<std::unique_ptr<Vehicle>> vehicles;
     std::map<int, std::map<Lane, bool>> flags;
-    std::map<int, bool> hasDequeued; // Track dequeued vehicles by ID
+    std::map<int, bool> hasDequeued; 
     LightQueue lightQueue;
     float lightUpdateInterval = 5.0f;
     bool a2Priority = false;
@@ -130,40 +130,47 @@ int main() {
         }
 
         for (size_t i = 0; i < vehicles.size(); ++i) {
+            
+            bool shouldStop = false;
+            for (auto& tc : trafficControls) { 
+                sf::FloatRect vehicleBounds = vehicles[i]->getBounds();
+                sf::FloatRect stopZone = tc.getBlocker().getGlobalBounds(); 
+                if (tc.getLight() == Light::RED && vehicleBounds.intersects(stopZone)) {
+                    shouldStop = true;
+                    break;
+                }
+            }
+            if (shouldStop) {
+                vehicles[i]->stop();
+            } else {
+                vehicles[i]->resume();
+            }
+
             vehicles[i]->update(deltaTime, vehicleRefs);
 
             for (size_t j = 0; j < laneTriggers.size(); ++j) {
                 Lane lane = laneTriggers[j].getLane();
                 if (laneTriggers[j].isVehicleOnLane(*vehicles[i]) && !flags[vehicles[i]->getID()][lane]) {
-                    std::cout << "Enqueue " << vehicles[i]->getID() << " to " << static_cast<int>(lane) << std::endl;
-                    if (!hasDequeued[vehicles[i]->getID()]) {
-                        queues[lane].enqueue(*vehicles[i]);
-                    }
-                    std::cout << "Queue size for lane " << static_cast<int>(lane) << ": " << queues[lane].size() << std::endl;
+                    queues[lane].enqueue(*vehicles[i]);
                     flags[vehicles[i]->getID()][lane] = true;
                 } else if (!laneTriggers[j].isVehicleOnLane(*vehicles[i]) && flags[vehicles[i]->getID()][lane]) {
                     queues[lane].dequeue();
-                    std::cout << "Dequeue " << vehicles[i]->getID() << " from " << static_cast<int>(lane) << std::endl;
-                    std::cout << "Queue size for lane " << static_cast<int>(lane) << ": " << queues[lane].size() << std::endl;
                     flags[vehicles[i]->getID()][lane] = false;
-                    hasDequeued[vehicles[i]->getID()] = true;
-                    vehicles.erase(vehicles.begin() + i); // Remove from vehicles
-                    --i; // Adjust index after erase
-                    break; // Exit trigger loop after removal
                 }
             }
 
-            if (i < vehicles.size()) { // Check bounds after potential erase
-                bool stopped = false;
-                for (auto& trafficControl : trafficControls) {
-                    if (vehicles[i]->getBounds().intersects(trafficControl.getBlocker().getGlobalBounds()) && trafficControl.isRed()) {
-                        vehicles[i]->stop();
-                        stopped = true;
-                    }
+            bool atDestination = false;
+            for (auto& trigger : laneTriggers) { 
+                if (trigger.getLane() == vehicles[i]->getDestinationLane() &&
+                    trigger.isVehicleOnLane(*vehicles[i])) {
+                    atDestination = true;
+                    break;
                 }
-                if (!stopped) {
-                    vehicles[i]->resume();
-                }
+            }
+
+            if (vehicles[i]->hasCompletedRoute() && atDestination) {
+                vehicles.erase(vehicles.begin() + i);
+                --i;
             }
         }
 
@@ -207,7 +214,7 @@ int main() {
                 }
             }
 
-            lightUpdateInterval = std::max(1.0f, selectedAvg * 3.0f);
+            lightUpdateInterval = std::max(1.0f, selectedAvg * 1.0f);
 
             for (auto& tc : trafficControls) {
                 if (tc.getRoad() == RoadType::A && greenRoad == RoadType::A) {

@@ -27,4 +27,4 @@ Below is a GIF demonstrating the simulation in action, showing vehicles navigati
    cmake --build build
  
  ## Report
- Check out a detailed report [here](docs/Report.pdf)
+ Check out the detailed report [here](docs/Report.pdf)

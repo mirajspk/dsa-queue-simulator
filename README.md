@@ -5,8 +5,8 @@
 A **Traffic Simulation System** developed for the COMP 202 course at the Department of Computer Science and Engineering, Kathmandu University. It simulates vehicle movement through a 4-way intersection with adaptive traffic lights, using **C++**, **SFML**, and  **queue data structure**.
 
 ## Demonstration
-
-Below is a GIF demonstrating the simulation in action, showing vehicles navigating the intersection with adaptive traffic lights:
+Lane number is Lane enum converted to integer. A1=0, A2=1, .....
+[Clip below]
 
 ![Simulation GIF](assets/Clip.gif)
 
@@ -18,7 +18,9 @@ Below is a GIF demonstrating the simulation in action, showing vehicles navigati
 
 **Note**: The program was developed and tested on macOS. To run on Linux or Windows systems, you may need to extend the current `CMakeLists.txt` to support your system.
 
-### Steps
+### How to run?
+[Clip below]
+![GIF](assets/demo.gif)
 1. **Clone and Build**:
    ```bash
    git clone https://github.com/mirajspk/dsa-queue-simulator.git

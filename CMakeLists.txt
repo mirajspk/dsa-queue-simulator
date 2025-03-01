@@ -18,7 +18,7 @@ add_executable(traffic_generator
     src/traffic_generator.cpp 
     src/VehicleClass.cpp
 )
-target_compile_features(traffic_generator PRIVATE cxx_std_17)
+target_compile_features(traffic_generator PRIVATE cxx_std_14)
 target_link_libraries(traffic_generator PRIVATE sfml-graphics sfml-window sfml-network)
 
 add_executable(simulator 
@@ -29,5 +29,5 @@ add_executable(simulator
     src/VehicleQueue.cpp 
     src/TrafficControl.cpp
 )
-target_compile_features(simulator PRIVATE cxx_std_17)
+target_compile_features(simulator PRIVATE cxx_std_14)
 target_link_libraries(simulator PRIVATE sfml-graphics sfml-window sfml-network)

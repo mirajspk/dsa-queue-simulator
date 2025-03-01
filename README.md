@@ -13,10 +13,10 @@ Lane number is Lane enum converted to integer. A1=0, A2=1, .....
 ## Run the Simulation
 
 ### Prerequisites
-- **C++ Compiler**: Ensure you have a C++ compiler installed.
-- **CMake**: Required to generate the build system and automatically fetch SFML during the build process.
+- **C++14 Compiler**: Ensure you have a C++14 or later compiler installed.
+- **CMake>=3.28**: Required to generate the build system and automatically fetch SFML during the build process.
 
-**Note**: The program was developed and tested on macOS. To run on Linux or Windows systems, you may need to extend the current `CMakeLists.txt` to support your system.
+**Note**: The program was developed and tested on macOS and. To run on Linux or Windows systems, you may need to extend the current `CMakeLists.txt` to support your system.
 
 ### How to run?
 [Clip below]
